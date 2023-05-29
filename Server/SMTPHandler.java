@@ -9,11 +9,11 @@ import java.util.Arrays;
 public class SMTPHandler extends Thread {
     
     final String[] blacklistFrom = {
-        "glhf@tuks.co.za",
+        "blocked@tuks.co.za",
     };
 
     final String[] blacklistTo = {
-        "EMAILS",
+        "scam@tuks.co.za",
     };
 
     String destinationHost = "smtp.freesmtpservers.com";
@@ -96,6 +96,11 @@ public class SMTPHandler extends Thread {
         String message = data.substring(index + 6, data.indexOf("\n.\r\n"));
         data = data.substring(0, index + 6);
 
+        if (message.contains("Illuminati")) {
+            message = "Subject: Hello World\r\nHello World\r\n";
+            return data + message + "\r\n.\r\nQUIT\r\n";
+        }
+
         // fast -> speedful
         message = message.replaceAll(" fast ", " speedful ");
         message = message.replaceAll("fast ", "speedful ");
@@ -151,8 +156,6 @@ public class SMTPHandler extends Thread {
         message = message.replaceAll("very bad ", "plusungood ");
         message = message.replaceAll(" very bad", " plusungood");
 
-        data += message + "\r\n.\r\nQUIT\r\n";
-
-        return data;
+        return data + message + "\r\n.\r\nQUIT\r\n";;
     }
 }
