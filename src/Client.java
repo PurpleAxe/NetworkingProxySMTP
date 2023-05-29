@@ -17,7 +17,8 @@ public class Client {
             dos.writeBytes(Data + "\r\n");
             dos.writeBytes(".\r\n");
             dos.writeBytes("QUIT\r\n");
-
+            
+            dos.close();
             clientSocket.close();
             return true;
         } catch (Exception e) {
