@@ -166,6 +166,6 @@ public class SMTPHandler extends Thread {
         message = message.replaceAll("very bad ", "plusungood ");
         message = message.replaceAll(" very bad", " plusungood");
 
-        return data + message + "\r\n.\r\nQUIT\r\n";;
+        return data + message + "\r\n.\r\nQUIT\r\n";
     }
 }
