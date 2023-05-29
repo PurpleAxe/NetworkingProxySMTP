@@ -11,6 +11,8 @@ public class ClientGUI extends JFrame{
     private JButton btnSend;
     private JTextField txtSubject;
 
+    private static final String EMAIL_PATTERN = "^\\S+@\\S+\\.\\S+$";
+
     public ClientGUI() {
         setContentPane(panel1);
         setTitle("RyAndy Mail");
@@ -64,17 +66,28 @@ public class ClientGUI extends JFrame{
         btnSend.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String FROM = "ryanandreas@cos332prac.co.za";
-                String RCPT = txtMailTo.getText();
-                String SUBJECT = txtSubject.getText();
-                String DATA = "";
+                    String FROM = "ryanandreas@cos332prac.co.za";
+                    String RCPT = txtMailTo.getText();
+                    txtMailTo.setText("Recipient");
 
-                for(String dataLine : txtData.getText().split("\\n")) DATA += dataLine + "\r\n";
+                    String SUBJECT = txtSubject.getText();
+//                    if(!SUBJECT.matches(EMAIL_PATTERN)) throw new RuntimeException("Email Invalid");
+                    txtSubject.setText("Subject");
 
-                System.out.println("FROM: "+FROM);
-                System.out.println("TO: "+RCPT);
-                System.out.println("SUBJECT: "+SUBJECT);
-                System.out.println("");
+                    String DATA = "";
+
+
+                    for (String dataLine : txtData.getText().split("\\n")) DATA += dataLine + "\r\n";
+                    txtData.setText("");
+
+
+
+                    System.out.println("FROM: " + FROM);
+                    System.out.println("TO: " + RCPT);
+                    System.out.println("SUBJECT: " + SUBJECT);
+                    System.out.println("DATA: " + DATA);
+
+                    new Client().sendEmail(RCPT, FROM, SUBJECT, DATA);
 
             }
         });
