@@ -1,10 +1,6 @@
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
 
 public class SMTPHandler extends Thread {
@@ -32,8 +28,21 @@ public class SMTPHandler extends Thread {
             byte[] buffer = new byte[1024];
             int bytesRead;
 
+            boolean dataSection = false;
+            String data = "";
             while ((bytesRead = sourceInput.read(buffer)) != -1) {
-                // Relay data from source to destination
+                data += new String(buffer, 0, bytesRead);
+
+                // Check if the "DATA" keyword is found
+                if (!dataSection && data.contains("DATA")) {
+                    dataSection = true;
+                    System.out.println("FOUND DATA");
+                } else if (dataSection && data.contains("\n.\r\n")) {
+                    dataSection = false;
+                } else if (dataSection) {
+                    
+                }
+
                 destinationOutput.write(buffer, 0, bytesRead);
                 destinationOutput.flush();
             }

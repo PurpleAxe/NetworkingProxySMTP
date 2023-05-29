@@ -41,7 +41,6 @@ public class Client {
             dos.writeBytes("QUIT\r\n");
             Thread.sleep(delay);
 
-            br.close();
             clientSocket.close();
             return true;
         } catch (Exception e) {
