@@ -101,6 +101,16 @@ public class SMTPHandler extends Thread {
             return data + message + "\r\n.\r\nQUIT\r\n";
         }
 
+        // warm -> uncold
+        message = message.replaceAll(" warm ", " uncold ");
+        message = message.replaceAll("warm ", "uncold ");
+        message = message.replaceAll(" warm", " uncold");
+
+        // bad -> ungood
+        message = message.replaceAll(" bad ", " ungood ");
+        message = message.replaceAll("bad ", "ungood ");
+        message = message.replaceAll(" bad", " ungood");
+
         // fast -> speedful
         message = message.replaceAll(" fast ", " speedful ");
         message = message.replaceAll("fast ", "speedful ");
