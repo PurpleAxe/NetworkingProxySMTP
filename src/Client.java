@@ -3,25 +3,51 @@ import java.io.*;
 
 public class Client {
     private Socket clientSocket;
-    private BufferedReader br;
-    private PrintWriter pw;
+    private int delay = 1000;
 
-    public Client() {
+    public boolean sendEmail(String rcpt, String from, String subject, String Data) {
         try {
-            this.clientSocket = new Socket("127.0.0.1", 55);
-            pw = new PrintWriter(clientSocket.getOutputStream(), true);
-            br = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        } catch (IOException e) {
+            clientSocket = new Socket("127.0.0.1", 55);
+
+            final BufferedReader br = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            (new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        String line;
+                        while((line = br.readLine()) != null)
+                            System.out.println("SERVER: " + line);
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            })).start();
+            
+            DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
+            dos.writeBytes("EHLO smtp.freesmtpservers.com\r\n");
+            Thread.sleep(delay);
+            dos.writeBytes("MAIL FROM:<" + from + ">\r\n");
+            Thread.sleep(delay);
+            dos.writeBytes("RCPT TO:<" + rcpt + ">\r\n");
+            Thread.sleep(delay);
+            dos.writeBytes("DATA\r\n");
+            Thread.sleep(delay);
+            dos.writeBytes("Subject: " + subject + "\r\n");
+            Thread.sleep(delay);
+            dos.writeBytes(Data + "\r\n");
+            Thread.sleep(delay);
+            dos.writeBytes(".\r\n");
+            Thread.sleep(delay);
+            dos.writeBytes("QUIT\r\n");
+            Thread.sleep(delay);
+
+            br.close();
+            clientSocket.close();
+            return true;
+        } catch (Exception e) {
             System.out.println(e);
+            return false;
         }
-    }
-
-    public boolean sendEmail(String RCPT, String FROM, String Data) {
-        pw.println("HELO smtp.freesmtpservers.com\r\n");
-        pw.println("MAIL FROM: "+FROM+"\r\n");
-        pw.println("RCPT TO: "+RCPT+"\r\n");
-
-        return true;
     }
 
 }
