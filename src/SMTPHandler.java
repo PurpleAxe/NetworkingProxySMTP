@@ -1,6 +1,8 @@
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.InputStreamReader;
 import java.net.Socket;
 
 public class SMTPHandler extends Thread {
@@ -18,33 +20,37 @@ public class SMTPHandler extends Thread {
     public void run() {
         try {
             Socket destinationSocket = new Socket("smtp.freesmtpservers.com", 25);
-
-            Thread destinationToClientThread = new Thread(() -> relayData(destinationSocket, mySocket));
-            destinationToClientThread.start();
             
-            OutputStream destinationOutput = destinationSocket.getOutputStream();
             InputStream sourceInput = mySocket.getInputStream();
+
+            final BufferedReader br = new BufferedReader(new InputStreamReader(destinationSocket.getInputStream()));
+            (new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        String line;
+                        while((line = br.readLine()) != null)
+                            System.out.println("SERVER: " + line);
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            })).start();
     
             byte[] buffer = new byte[1024];
             int bytesRead;
 
-            boolean dataSection = false;
             String data = "";
             while ((bytesRead = sourceInput.read(buffer)) != -1) {
                 data += new String(buffer, 0, bytesRead);
+            }
 
-                // Check if the "DATA" keyword is found
-                if (!dataSection && data.contains("DATA")) {
-                    dataSection = true;
-                    System.out.println("FOUND DATA");
-                } else if (dataSection && data.contains("\n.\r\n")) {
-                    dataSection = false;
-                } else if (dataSection) {
-                    
-                }
-
-                destinationOutput.write(buffer, 0, bytesRead);
-                destinationOutput.flush();
+            DataOutputStream dos = new DataOutputStream(destinationSocket.getOutputStream());
+            int index;
+            while ((index = data.indexOf("\r\n")) >= 0) {
+                dos.writeBytes(data.substring(0, index + 2));
+                Thread.sleep(delay);
+                data = data.substring(index + 2);
             }
             
             destinationSocket.close();
@@ -52,22 +58,5 @@ public class SMTPHandler extends Thread {
         } catch (Exception e) {
             e.printStackTrace();
         } 
-    }
-
-    private void relayData(Socket sourceSocket, Socket destinationSocket) {
-        try {
-            InputStream sourceInput = sourceSocket.getInputStream();
-            OutputStream destinationOutput = destinationSocket.getOutputStream();
-
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-
-            while ((bytesRead = sourceInput.read(buffer)) != -1) {
-                destinationOutput.write(buffer, 0, bytesRead);
-                destinationOutput.flush();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
